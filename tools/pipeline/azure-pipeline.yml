@@ -38,7 +38,7 @@ steps:
       provider: 'azurerm'
       command: 'plan'
       commandOptions: >
-        -var-file="environments/${{ parameters.environment }}.tfvars"       
+        -var-file="environments/test.tfvars"       
         -out tfplan
         ${{ parameters.additionalTerraformCommandOptions }}       
       workingDirectory: '$(Build.Repository.Name)/tools/infra'
