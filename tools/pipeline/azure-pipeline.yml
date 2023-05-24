@@ -4,5 +4,51 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  - group: common
+  
 steps:
-  - bash: echo test
+  - task: TerraformInstaller@0
+    inputs:
+      terraformVersion: 'latest'
+
+  - task: TerraformTaskV2@2
+    displayName: Terraform Init
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      workingDirectory: '$(Build.Repository.Name)/tools/infra'
+      backendAzureRmResourceGroupName: '$(terraformBackendResourceGroup)'
+      backendAzureRmStorageAccountName: '$(terraformBackendStorageAccount)'
+      backendAzureRmContainerName: '$$(terraformBackendStorageContainer)'
+      backendAzureRmKey: 'SaTTest.tfstate'
+      backendServiceArm: '$(serviceConnectionAzure)'
+
+  - task: TerraformTaskV2@2
+    displayName: Terraform Validate
+    inputs:
+      provider: 'azurerm'
+      command: 'validate'
+      workingDirectory: '$(Build.Repository.Name)/tools/infra'
+      environmentServiceNameAzureRM: '$(serviceConnectionAzure)'
+
+  - task: TerraformTaskV2@2
+    displayName: Terraform Plan
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      commandOptions: >
+        -var-file="environments/${{ parameters.environment }}.tfvars"       
+        -out tfplan
+        ${{ parameters.additionalTerraformCommandOptions }}       
+      workingDirectory: '$(Build.Repository.Name)/tools/infra'
+      environmentServiceNameAzureRM: '$(serviceConnectionAzure)'
+
+  - task: TerraformTaskV2@2
+    displayName: Terraform Apply
+    inputs:
+      provider: 'azurerm'
+      command: 'apply'
+      commandOptions: '-input=false -auto-approve tfplan'
+      workingDirectory: '$(Build.Repository.Name)/tools/infra'
+      environmentServiceNameAzureRM: $(serviceConnectionAzure)
