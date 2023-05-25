@@ -21,14 +21,13 @@ resources:
       type: github
       endpoint: sliwa880
       name: sliwa880/pipeline_templates
-      ref: main
-      #ref: refs/tags/1.2.1
+      ref: main # użycie ostatniego commita na branchu "main"
 
     - repository: terraform-modules
       type: github
       endpoint: sliwa880
       name: sliwa880/terraform-modules
-      #ref: refs/tags/1.2.1
+      ref: refs/tags/daprTag # użycie commita do którego jest przypisany tag "daprTag"
   
 stages:
   - template: template-build-and-push-image.yml@DevOps-Templates
@@ -49,6 +48,4 @@ stages:
       serviceConnectionAzure: $(serviceConnectionAzure)
       terraformBackendResourceGroup: $(terraformBackendResourceGroup)
       terraformBackendStorageAccount: $(terraformBackendStorageAccount)
-      # variables:
-      #   - group: Servic1
       additionalTerraformCommandOptions: $(additionalTerraformVariables) 
